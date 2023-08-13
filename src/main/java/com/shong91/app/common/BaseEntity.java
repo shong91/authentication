@@ -1,5 +1,6 @@
 package com.shong91.app.common;
 
+import com.shong91.app.util.TokenUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -34,13 +35,12 @@ public abstract class BaseEntity {
   private LocalDateTime deletedAt;
 
   protected BaseEntity() {
-    // TODO 로그인 유저
-    this.createdBy = String.valueOf(1);
+    this.createdBy = String.valueOf(TokenUser.getId());
     this.createdAt = LocalDateTime.now();
   }
 
   public void update() {
-    this.updatedBy = String.valueOf(1);
+    this.updatedBy = String.valueOf(TokenUser.getId());
     this.updatedAt = LocalDateTime.now();
   }
 
