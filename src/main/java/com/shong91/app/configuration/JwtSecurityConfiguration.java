@@ -1,4 +1,4 @@
-package com.shong91.app.conf;
+package com.shong91.app.configuration;
 
 import com.shong91.app.filter.JwtFilter;
 import com.shong91.app.util.TokenUtil;

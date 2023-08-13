@@ -2,10 +2,14 @@ package com.shong91.app.service;
 
 import com.shong91.app.controller.dto.AuthDto;
 import com.shong91.app.controller.dto.AuthDto.Response;
+import com.shong91.app.controller.dto.TokenDto;
 import com.shong91.app.domain.User;
+import com.shong91.app.util.JwtProperties;
 import com.shong91.app.util.TokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -20,6 +24,8 @@ public class AuthService {
 
   private final TokenUtil tokenUtil;
   private final AuthenticationManagerBuilder authenticationManagerBuilder;
+  private final RedisTemplate redisTemplate;
+  private final JwtProperties jwtProperties;
 
   /**
    * 사용자 로그인
@@ -38,8 +44,15 @@ public class AuthService {
     User user = (User) authentication.getPrincipal();
 
     // 3. create tokens if authenticated
-    String accessToken = tokenUtil.createToken(authentication);
+    String accessToken = tokenUtil.createToken(authentication, jwtProperties.getExpirationSec());
+    String refreshToken = tokenUtil.createToken(authentication,
+        jwtProperties.getExpirationRedisSec());
 
-    return new Response(user.toDto(), accessToken);
+    // 4. save refresh token in redis: 레디스 만료 - 2주
+    ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+    valueOperations.set(String.valueOf(user.getId()), refreshToken,
+        jwtProperties.getExpirationRedisSec());
+
+    return new Response(user.toDto(), new TokenDto(accessToken, refreshToken));
   }
 }

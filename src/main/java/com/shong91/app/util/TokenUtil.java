@@ -38,7 +38,7 @@ public class TokenUtil {
    * @param authentication
    * @return
    */
-  public String createToken(Authentication authentication) {
+  public String createToken(Authentication authentication, long expirationSec) {
     Key key = getKey();
     User user = (User) authentication.getPrincipal();
 
@@ -50,7 +50,7 @@ public class TokenUtil {
         .setSubject(user.getEmail())
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(
-            new Date(System.currentTimeMillis() + jwtProperties.getExpirationSec() * 1000))
+            new Date(System.currentTimeMillis() + expirationSec * 1000))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
   }
