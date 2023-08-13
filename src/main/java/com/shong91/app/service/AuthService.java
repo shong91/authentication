@@ -8,11 +8,15 @@ import com.shong91.app.domain.User;
 import com.shong91.app.exception.CustomRuntimeException;
 import com.shong91.app.util.JwtProperties;
 import com.shong91.app.util.TokenUtil;
+import io.jsonwebtoken.Claims;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -91,5 +95,41 @@ public class AuthService {
 
     // 4. response new access token
     return new TokenDto(newAccessToken, refreshToken);
+  }
+
+  /**
+   * 사용자 로그아웃
+   *
+   * @param accessToken
+   * @return
+   */
+  public int signOut(String accessToken) {
+    // 1. validate access token
+    if (hasKeyBlackList(accessToken)) {
+      throw new CustomRuntimeException(ResultCode.EXPIRED_TOKEN);
+    }
+
+    // 2. get claims
+    Claims claims = tokenUtil.parseClaims(accessToken);
+    int userId = (int) claims.get("userId");
+
+    // 3. delete refresh token in Redis => refresh token 무효화
+    redisTemplate.delete(String.valueOf(userId));
+
+    // 4. add access token in blacklist => access token 무효화
+    long expiration = claims.getExpiration().getTime();
+    setBlackList(accessToken, HttpHeaders.AUTHORIZATION, expiration);
+
+    return userId;
+  }
+
+
+  public void setBlackList(String key, Object object, Long milliSeconds) {
+    redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(object.getClass()));
+    redisTemplate.opsForValue().set(key, object, milliSeconds, TimeUnit.MILLISECONDS);
+  }
+
+  public boolean hasKeyBlackList(String token) {
+    return redisTemplate.hasKey(token);
   }
 }
