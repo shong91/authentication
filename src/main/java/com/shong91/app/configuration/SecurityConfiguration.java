@@ -1,4 +1,4 @@
-package com.shong91.app.conf;
+package com.shong91.app.configuration;
 
 import com.shong91.app.filter.JwtAccessDeniedHandler;
 import com.shong91.app.filter.JwtAuthenticationEntryPoint;
