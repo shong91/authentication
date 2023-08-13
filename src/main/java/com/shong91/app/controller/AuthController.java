@@ -41,10 +41,22 @@ public class AuthController {
       throw new CustomRuntimeException(ResultCode.ILLEGAL_ARGUMENT_TOKEN);
     }
 
-    if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+    if (StringUtils.hasText(accessToken) && accessToken.startsWith(
+        AuthConstants.AUTHENTICATION_TYPE)) {
       accessToken = accessToken.substring(7);
     }
 
     return new ResponseDto<>(ResultCode.OK, authService.reissueToken(accessToken, refreshToken));
+  }
+
+  @PostMapping("/logout")
+  public ResponseDto<Integer> signOut(HttpServletRequest servletRequest) {
+    String accessToken = servletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.hasText(accessToken) && accessToken.startsWith(
+        AuthConstants.AUTHENTICATION_TYPE)) {
+      accessToken = accessToken.substring(7);
+    }
+
+    return new ResponseDto<>(ResultCode.OK, authService.signOut(accessToken));
   }
 }
