@@ -37,7 +37,8 @@ public class SecurityConfiguration {
         /* permit all; swagger resources */
         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**")
         .permitAll()
-        .requestMatchers("/api/v1/auth/login")
+        /* permit all; authentication : 로그인, 토큰재발급 */
+        .requestMatchers("/api/v1/auth/**")
         .permitAll()
         .anyRequest()
         .authenticated()
