@@ -8,6 +8,7 @@ import com.shong91.app.domain.User;
 import com.shong91.app.exception.CustomRuntimeException;
 import com.shong91.app.util.JwtProperties;
 import com.shong91.app.util.TokenUtil;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,7 +54,7 @@ public class AuthService {
     // 4. save refresh token in redis: 레디스 만료 - 2주
     ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
     valueOperations.set(String.valueOf(user.getId()), refreshToken,
-        jwtProperties.getExpirationRedisSec());
+        Duration.ofSeconds(jwtProperties.getExpirationRedisSec()));
 
     return new Response(user.toDto(), new TokenDto(accessToken, refreshToken));
   }
