@@ -8,7 +8,9 @@ public class AuthDto {
 
   @Getter
   public static class Request {
-    @Email private String email;
+
+    @Email
+    private String email;
 
     @NotBlank(message = "비밀번호 정보가 없습니다.")
     private String password;
@@ -16,12 +18,13 @@ public class AuthDto {
 
   @Getter
   public static class Response {
-    private UserDto user;
-    private String accessToken;
 
-    public Response(UserDto user, String accessToken) {
+    private UserDto user;
+    private TokenDto token;
+
+    public Response(UserDto user, TokenDto token) {
       this.user = user;
-      this.accessToken = accessToken;
+      this.token = token;
     }
   }
 }

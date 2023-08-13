@@ -16,6 +16,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL57Dialect
     defer-datasource-initialization: true
 
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
 logging:
   level:
     org.hibernate.SQL: debug
@@ -24,3 +28,4 @@ logging:
 jwt:
   secret: secret-key
   expirationSec: 3600 # 60 * 60 = 1hour
+  expirationRedisSec: 1209600 # 60 * 60 * 24 * 14
